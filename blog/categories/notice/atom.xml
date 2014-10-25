@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[eval's 2ndary memory]]></title>
-  <link href="http://eval-scheme.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Notice | eval's 2ndary memory]]></title>
+  <link href="http://eval-scheme.github.io/blog/categories/notice/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
   <updated>2014-10-26T02:58:42+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
@@ -42,21 +42,6 @@
 
 <p>基本的に備忘録として使って行きたいと思ってますが、何か要望なんかがあったら
 教えてください。善処します。（実現確率がががっ）</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Test]]></title>
-    <link href="http://eval-scheme.github.io/blog/2014/10/26/test/"/>
-    <updated>2014-10-26T02:13:02+09:00</updated>
-    <id>http://eval-scheme.github.io/blog/2014/10/26/test</id>
-    <content type="html"><![CDATA[<p>This is test message for me to you.</p>
-
-<p>I use octopress to generato this page and any other.</p>
-
-<p>Can I use this?</p>
-
-<p>I&rsquo;m losing my pride&hellip;</p>
 ]]></content>
   </entry>
   
