@@ -4,7 +4,7 @@
   <title><![CDATA[eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2014-11-01T19:22:19+09:00</updated>
+  <updated>2014-11-02T00:10:38+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -12,6 +12,105 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[RaspberryPiにWiFiを導入(CUI)]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/01/raspi-wifi/"/>
+    <updated>2014-11-01T23:11:59+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/01/raspi-wifi</id>
+    <content type="html"><![CDATA[<p>実は前回の話をするときの前にやってたことなんだけど…</p>
+
+<!-- more -->
+
+
+<p>今サーバとして使われているラズパイが２つあって、内一つは
+普段からLANケーブルが２本刺さってる状態にあって、それぞれに
+IPアドレスがふられていた。</p>
+
+<p>それを何とかしようと思った私は「そうだ、Bondingしよっ！」と
+思い立ったわけだけど、サーバ用だからディスプレイもないし
+そもそもキーボードとかも用意していない。果ては部屋の隅に
+埋まっている状況で、かろうじてUSBポートに手が出せる感じたった。</p>
+
+<p>そこで私は余っていたWiFiドングルを取り出しておもむろに接続し…</p>
+
+<h2>Installs</h2>
+
+<p>まずはお決まりのインストールから。私が使ったパッケージは
+<strong>wpa_supplicant</strong>だけ新しくインストール。</p>
+
+<p>これも例のごとくaptで取得できる。</p>
+
+<h2>無線LANの設定</h2>
+
+<p>ドングルを接続し、</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nv">$ </span>dmesg
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>によってカーネルメッセージなどを確認することによって
+USBデバイスがきちんと認識されていることを確認した後、</p>
+
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># nano /etc/cat /etc/network/interfaces</span></code></pre></td></tr></table></div></figure>
+
+
+<p>で編集することになる。編集内容は</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto wlan0
+</span><span class='line'>iface wlan0 inet dhcp
+</span><span class='line'>wpa-conf /etc/wpa_supplicatn/wpa_supplicant.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>という記述を追加する。
+その後に、楽な方法を取ろうかと思ってやったのが
+<a href="" title="http://hukuroufc2.blog.fc2.com/blog-entry-32.html">Not Found Parameter</a>
+に載っていた方法。先ほどインストールしたソフトはそのため。</p>
+
+<p>何をするのかというと…</p>
+
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># wpa_passphrase SSID Passphrase > /etc/wpa_supplicatn/wpa_supplicant.conf</span></code></pre></td></tr></table></div></figure>
+
+
+<p>としてやると、既存の設定は消え去るがとても楽に話が済む。もちろんSSIDと
+Passphraseは自分の環境に合わせて変えなければならないけれども。</p>
+
+<p>こうして書き込んだファイルを開き更に数行追加する。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nv">key_mgmt</span><span class="o">=</span>WPA-PSK
+</span><span class='line'><span class="nv">proto</span><span class="o">=</span>WPA WPA2
+</span><span class='line'><span class="nv">pairwise</span><span class="o">=</span>CCMP TKIP
+</span><span class='line'><span class="nv">group</span><span class="o">=</span>CCMP TKIP
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>という行を先ほどのファイルの中括弧内に追加する。</p>
+
+<p>それからさきはもう一旦wlan0を落としてからもう一度起動する。
+これでうまく言ってたらおめでとう！</p>
+
+<p>なお、DHCPにアクセスする前提で記述してるが、そうでない場合は</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'>iface wlan0 inet static
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>と書くなどしてそれぞれの設定を書かないといけない。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ラズパイにNFSを構成する話]]></title>
@@ -62,11 +161,13 @@ aptで入れるとたいていは自動的に設定される。そうでなか�
 <h2>/etc/exportsの設定</h2>
 
 <p>最初に言ったようにここの設定をいじくってあげないとNFSは
-何もお話しません。こいつをどう設定するかって言うと…
-<code>
-srv-dirs hostname1(options) hostname2(options)
-</code>
-というふうに書くことになる。詳しいことはいろいろ調べれば出てくると
+何もお話しません。こいつをどう設定するかって言うと…</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>srv-dirs hostname1(options) hostname2(options)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>というふうに書くことになる。詳しいことはいろいろ調べれば出てくると
 思うけど…例えば</p>
 
 <p><a href="" title="http://www.turbolinux.com/support/document/knowledge/555.html">turbolinux</a></p>

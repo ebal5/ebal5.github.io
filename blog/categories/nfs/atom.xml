@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Nfs | eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/blog/categories/nfs/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2014-11-01T19:22:19+09:00</updated>
+  <updated>2014-11-02T00:10:38+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -57,16 +57,16 @@ aptで入れるとたいていは自動的に設定される。そうでなか�
 標準じゃないっぽいから使うときには入れなくてはいけない。
 (多分こんなコマンドだから直接弄るファイルがあるんだろうけど)
 
+
 ## /etc/exportsの設定 ##
 最初に言ったようにここの設定をいじくってあげないとNFSは
 何もお話しません。こいつをどう設定するかって言うと…
-``
-srv-dirs hostname1(options) hostname2(options)
-``
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>srv-dirs hostname1(options) hostname2(options)</span></code></pre></td></tr></table></div></figure>
 というふうに書くことになる。詳しいことはいろいろ調べれば出てくると
 思うけど…例えば
 
-[turbolinux]("http://www.turbolinux.com/support/document/knowledge/555.html")
+[turbolinux](&#8220;http://www.turbolinux.com/support/document/knowledge/555.html&#8221;)
 
 みたいなところでお話してくれる。私の設定は公開しないほうがいいようななぞ
 設定になってると思うから…
