@@ -4,7 +4,7 @@
   <title><![CDATA[eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2014-11-01T19:20:33+09:00</updated>
+  <updated>2014-11-01T19:22:19+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p>Q.RaspberryPiにNFSサーバを構築したいんだっ！</p>
 
 <p>A.はい/etc/exports</p>
+
+<!-- more -->
+
 
 <p>当たり前の話ですけれでもサーバなんて建てればいいってわけじゃなくて
 いれた後にいろんな設定をしたりそもそもいろんな設定をしなければだったり
