@@ -4,7 +4,7 @@
   <title><![CDATA[eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2014-10-26T13:31:28+09:00</updated>
+  <updated>2014-11-01T19:20:33+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -12,6 +12,84 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ラズパイにNFSを構成する話]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/01/exports/"/>
+    <updated>2014-11-01T18:04:15+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/01/exports</id>
+    <content type="html"><![CDATA[<p>Q.RaspberryPiにNFSサーバを構築したいんだっ！</p>
+
+<p>A.はい/etc/exports</p>
+
+<p>当たり前の話ですけれでもサーバなんて建てればいいってわけじゃなくて
+いれた後にいろんな設定をしたりそもそもいろんな設定をしなければだったり
+するわけで…</p>
+
+<p>まあ、久しぶりにやったら忘れるよね。そんなわけで忘れ難くならないかな〜
+とか期待しつつ備忘録第一号として書いてみる。</p>
+
+<h2>Install</h2>
+
+<p>本当はこれ自体はだいぶ前から入れてあったけどついでにまとめ直してみる。</p>
+
+<h3>NFSサーバのインストール</h3>
+
+<p>一番簡単なのはaptコマンドを使って入れちゃうこと。OS標準のままで
+インストールできるからルート権限持ってるなら簡単。(まあ、ラズパイ
+使っててルート権限ないとか言う事態を考えたくないし…)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install nfs-common nfs-kernel-server</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これだけ。あとはOS起動時に走るようにしなきゃだけど…
+aptで入れるとたいていは自動的に設定される。そうでなかったら</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># chkconfig nfs-common on
+</span><span class='line'># chkconfig nfs-kernel-server on</span></code></pre></td></tr></table></div></figure>
+
+
+<p>とでもしてあげるとちゃんと動く。ちなみにchkconfigコマンドは
+標準じゃないっぽいから使うときには入れなくてはいけない。
+(多分こんなコマンドだから直接弄るファイルがあるんだろうけど)</p>
+
+<h2>/etc/exportsの設定</h2>
+
+<p>最初に言ったようにここの設定をいじくってあげないとNFSは
+何もお話しません。こいつをどう設定するかって言うと…
+<code>
+srv-dirs hostname1(options) hostname2(options)
+</code>
+というふうに書くことになる。詳しいことはいろいろ調べれば出てくると
+思うけど…例えば</p>
+
+<p><a href="" title="http://www.turbolinux.com/support/document/knowledge/555.html">turbolinux</a></p>
+
+<p>みたいなところでお話してくれる。私の設定は公開しないほうがいいようななぞ
+設定になってると思うから…</p>
+
+<h2>マウントする</h2>
+
+<p>実際に他のマシンからマウントする前にまず自分のマシンからマウント
+してみたほうがいいかもしれません。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mount -t nfs localhost:/srv/dir-name mount-point</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これでなんにもエラーが出なければおめでとうございます。
+普通に設定で許可されているマシンからマウントできることでしょう！</p>
+
+<p>私はここに共用のデータなどを入れています。まだこの設定のまま
+お外につなげるのは怖くて…</p>
+
+<p>とりあえずこのポストはこれくらいで終了とします。
+読んでいただきありがとうございます。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Success]]></title>
