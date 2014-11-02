@@ -4,7 +4,7 @@
   <title><![CDATA[eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2014-11-02T20:21:37+09:00</updated>
+  <updated>2014-11-02T21:43:04+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -12,6 +12,120 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Debian(系)でBondingしたいな〜って]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/02/debian-bonding/"/>
+    <updated>2014-11-02T20:54:14+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/02/debian-bonding</id>
+    <content type="html"><![CDATA[<h5>Q.複数のNICに同じIPを振りたいなって</h5>
+
+<h5>A.はいBonding</h5>
+
+<!-- more -->
+
+
+<h2>What is Bonding?</h2>
+
+<p>多分こんなのを見る人は私くらいだから自分用の説明をしなくては…</p>
+
+<p>Bondingとはタイトルの通り1台のPCに接続された複数のNICに
+同じIPアドレスを割り振る方法。なんでそんな事するかって言うと
+通信帯域の拡張やアクセスの容易さを求めて実行する。</p>
+
+<p>ちなみに逆に一つのNICに複数のIPアドレスを割り振るIPエイリアス
+と呼ばれる機能もある。こちらはただifconfigで実行できるので
+とても容易である。</p>
+
+<p>閑話休題。</p>
+
+<p>私がそんなことを実行したのはファイルサーバとして使ってるやつだから
+複数のアクセスを想定してLANケーブルが2本刺さってる怪しいラズパイを
+用意してたんだけどいちいちアドレス変えるの面倒なのと
+SSHするときに警告が出ることがあってそれがもういいなと。</p>
+
+<p>今回それをやったのがまたネットワーク越しのサーバ機だから
+以前に出てきたRaspberryPiにWiFi(CUI)の話が生きてくる。
+つまりBondingしない接続先を一つ用意しておいた。</p>
+
+<p>まあ、普通にやる場合は手元のマシンだろうからそんなことを考えなくて
+いいんだろうけど。</p>
+
+<h2>How to use?</h2>
+
+<p>何をするかって言うとまずパッケージのインストール。
+今回新たに必要になるのは</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ifenslave-2.6</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これのインストールが終わったらやることはとても簡単。</p>
+
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># nano /etc/network/interfaces</span></code></pre></td></tr></table></div></figure>
+
+
+<p>で開いて</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth0
+</span><span class='line'>iface eth0 inet dhcp
+</span><span class='line'>
+</span><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet dhcp</span></code></pre></td></tr></table></div></figure>
+
+
+<p>としていたところを</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth0
+</span><span class='line'>iface eth0 inet manual
+</span><span class='line'>bond-master bond0
+</span><span class='line'>
+</span><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet manual
+</span><span class='line'>bond-master bond0
+</span><span class='line'>
+</span><span class='line'>auto bond0
+</span><span class='line'>iface bond0 inet dhcp
+</span><span class='line'>  slaves eth0 eht1
+</span><span class='line'>  bond_miimon 100
+</span><span class='line'>  bond_downdelay 200
+</span><span class='line'>  bond_updelay 200
+</span><span class='line'>  bond-lacp-rate 4
+</span><span class='line'>  bond-slaves none</span></code></pre></td></tr></table></div></figure>
+
+
+<p>とする。こうすると
+もうほぼ終わったようなもので、
+後何が足りないかって言うとdhcp側の設定だけになってくる。
+ちなみにボンディングインタフェースのMACアドレスは
+bond_primaryを設定しないと最初に書いたものになるっぽい。</p>
+
+<p>今回はこれで終了っ！</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[RaspberryPiでLUKS暗号化HDDを起動時にマウント]]></title>

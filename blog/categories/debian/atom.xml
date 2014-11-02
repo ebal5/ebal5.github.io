@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Network | eval's 2ndary memory]]></title>
-  <link href="http://eval-scheme.github.io/blog/categories/network/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Debian | eval's 2ndary memory]]></title>
+  <link href="http://eval-scheme.github.io/blog/categories/debian/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
   <updated>2014-11-02T21:43:04+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
@@ -119,102 +119,6 @@ iface eth1 inet dhcp
 bond_primaryを設定しないと最初に書いたものになるっぽい。</p>
 
 <p>今回はこれで終了っ！</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[RaspberryPiにWiFiを導入(CUI)]]></title>
-    <link href="http://eval-scheme.github.io/blog/2014/11/01/raspi-wifi/"/>
-    <updated>2014-11-01T23:11:59+09:00</updated>
-    <id>http://eval-scheme.github.io/blog/2014/11/01/raspi-wifi</id>
-    <content type="html"><![CDATA[<p>実は前回の話をするときの前にやってたことなんだけど…</p>
-
-<!-- more -->
-
-
-<p>今サーバとして使われているラズパイが２つあって、内一つは
-普段からLANケーブルが２本刺さってる状態にあって、それぞれに
-IPアドレスがふられていた。</p>
-
-<p>それを何とかしようと思った私は「そうだ、Bondingしよっ！」と
-思い立ったわけだけど、サーバ用だからディスプレイもないし
-そもそもキーボードとかも用意していない。果ては部屋の隅に
-埋まっている状況で、かろうじてUSBポートに手が出せる感じたった。</p>
-
-<p>そこで私は余っていたWiFiドングルを取り出しておもむろに接続し…</p>
-
-<h2>Installs</h2>
-
-<p>まずはお決まりのインストールから。私が使ったパッケージは
-<strong>wpa_supplicant</strong>だけ新しくインストール。</p>
-
-<p>これも例のごとくaptで取得できる。</p>
-
-<h2>無線LANの設定</h2>
-
-<p>ドングルを接続し、
-<code>sh
-$ dmesg
-</code>
-によってカーネルメッセージなどを確認することによって
-USBデバイスがきちんと認識されていることを確認した後、
-<figure class='code'><figcaption><span>sh </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h1>nano /etc/cat /etc/network/interfaces&lt;/h1>
-</span><span class='line'>
-</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
-で編集することになる。編集内容は
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>auto wlan0
-</span><span class='line'>iface wlan0 inet dhcp
-</span><span class='line'>wpa-conf /etc/wpa_supplicatn/wpa_supplicant.conf</span></code></pre></td></tr></table></div></figure>
-という記述を追加する。
-その後に、楽な方法を取ろうかと思ってやったのが
-<a href="" title="http://hukuroufc2.blog.fc2.com/blog-entry-32.html">Not Found Parameter</a>
-に載っていた方法。先ほどインストールしたソフトはそのため。</p>
-
-<p>何をするのかというと…
-<figure class='code'><figcaption><span>sh </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
-</span><span class='line'>
-</span><span class='line'>&lt;h1>wpa_passphrase SSID Passphrase > /etc/wpa_supplicatn/wpa_supplicant.conf&lt;/h1>
-</span><span class='line'>
-</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></p>
-
-<p>としてやると、既存の設定は消え去るがとても楽に話が済む。もちろんSSIDと
-Passphraseは自分の環境に合わせて変えなければならないけれども。</p>
-
-<p>こうして書き込んだファイルを開き更に数行追加する。
-<code>
-key_mgmt=WPA-PSK
-proto=WPA WPA2
-pairwise=CCMP TKIP
-group=CCMP TKIP
-</code>
-という行を先ほどのファイルの中括弧内に追加する。</p>
-
-<p>それからさきはもう一旦wlan0を落としてからもう一度起動する。
-これでうまく言ってたらおめでとう！</p>
-
-<p>なお、DHCPにアクセスする前提で記述してるが、そうでない場合は
-<code>
-iface wlan0 inet static
-</code></p>
-
-<p>と書くなどしてそれぞれの設定を書かないといけない。</p>
 ]]></content>
   </entry>
   

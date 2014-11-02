@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Success - eval&#8217;s 2ndary memory</title>
+  <title>Debian(系)でBondingしたいな〜って - eval&#8217;s 2ndary memory</title>
   <meta name="author" content="eval">
 
   
-  <meta name="description" content="Successful!! なんとかOctpressのインストールと使用,並びにGitHub.ioドメインで管理される
-ユーザページへのアップロードがなされました… そして久しぶりに見た日本語になぜか安心している私がいます。 どうしてもさっきまで英語と闘うことが多かったせいか日本語だ…安心みたいな &hellip;">
+  <meta name="description" content="Q.複数のNICに同じIPを振りたいなって A.はいBonding What is Bonding? 多分こんなのを見る人は私くらいだから自分用の説明をしなくては… Bondingとはタイトルの通り1台のPCに接続された複数のNICに
+同じIPアドレスを割り振る方法。なんでそんな事するかって言うと &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://eval-scheme.github.io/blog/2014/10/26/success">
+  <link rel="canonical" href="http://eval-scheme.github.io/blog/2014/11/02/debian-bonding">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="eval's 2ndary memory" type="application/atom+xml">
@@ -62,7 +62,7 @@
   
   <header>
     
-      <h1 class="entry-title">Success</h1>
+      <h1 class="entry-title">Debian(系)でBondingしたいな〜って</h1>
     
     
       <p class="meta">
@@ -78,7 +78,7 @@
   
 
 
-<time datetime="2014-10-26T02:51:09+09:00" pubdate data-updated="true"></time>
+<time datetime="2014-11-02T20:54:14+09:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://eval-scheme.github.io">Comments</a>
@@ -88,33 +88,112 @@
   </header>
 
 
-<div class="entry-content"><h1>Successful!!</h1>
+<div class="entry-content"><h5>Q.複数のNICに同じIPを振りたいなって</h5>
 
-<p>なんとかOctpressのインストールと使用,並びにGitHub.ioドメインで管理される
-ユーザページへのアップロードがなされました…</p>
-
-<p>そして久しぶりに見た日本語になぜか安心している私がいます。</p>
-
-<p>どうしてもさっきまで英語と闘うことが多かったせいか日本語だ…安心みたいな
-そんな感覚でいます私ですが、これからはまともな記事を書いていけるように頑張って行きたいと思いますのでよろしくおねがいします。</p>
-
-<p>今日はもう遅いので一回寝るかな…そうして明日から本格的に
-色々書いていこうとおもいます。</p>
+<h5>A.はいBonding</h5>
 
 <!-- more -->
 
 
-<p>この技術ブログ的な何かはてきとーなところで後悔するんじゃなくてGitHub.ioで
-公開してるから自分でアドレスを覚えておけるのが素晴らしいとおもいます。
-まあ、どんなところでも打ってるうちに覚えそうなものですけど。
-（もしかして：一般的にアドレスは打たない？）</p>
+<h2>What is Bonding?</h2>
 
-<p>なにはともあれこれからよろしくおねがいします。</p>
+<p>多分こんなのを見る人は私くらいだから自分用の説明をしなくては…</p>
 
-<p>さて…一眠りした後はデザインの設定とか色々待ってるな…</p>
+<p>Bondingとはタイトルの通り1台のPCに接続された複数のNICに
+同じIPアドレスを割り振る方法。なんでそんな事するかって言うと
+通信帯域の拡張やアクセスの容易さを求めて実行する。</p>
 
-<p>基本的に備忘録として使って行きたいと思ってますが、何か要望なんかがあったら
-教えてください。善処します。（実現確率がががっ）</p>
+<p>ちなみに逆に一つのNICに複数のIPアドレスを割り振るIPエイリアス
+と呼ばれる機能もある。こちらはただifconfigで実行できるので
+とても容易である。</p>
+
+<p>閑話休題。</p>
+
+<p>私がそんなことを実行したのはファイルサーバとして使ってるやつだから
+複数のアクセスを想定してLANケーブルが2本刺さってる怪しいラズパイを
+用意してたんだけどいちいちアドレス変えるの面倒なのと
+SSHするときに警告が出ることがあってそれがもういいなと。</p>
+
+<p>今回それをやったのがまたネットワーク越しのサーバ機だから
+以前に出てきたRaspberryPiにWiFi(CUI)の話が生きてくる。
+つまりBondingしない接続先を一つ用意しておいた。</p>
+
+<p>まあ、普通にやる場合は手元のマシンだろうからそんなことを考えなくて
+いいんだろうけど。</p>
+
+<h2>How to use?</h2>
+
+<p>何をするかって言うとまずパッケージのインストール。
+今回新たに必要になるのは</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ifenslave-2.6</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これのインストールが終わったらやることはとても簡単。</p>
+
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># nano /etc/network/interfaces</span></code></pre></td></tr></table></div></figure>
+
+
+<p>で開いて</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth0
+</span><span class='line'>iface eth0 inet dhcp
+</span><span class='line'>
+</span><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet dhcp</span></code></pre></td></tr></table></div></figure>
+
+
+<p>としていたところを</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto eth0
+</span><span class='line'>iface eth0 inet manual
+</span><span class='line'>bond-master bond0
+</span><span class='line'>
+</span><span class='line'>auto eth1
+</span><span class='line'>iface eth1 inet manual
+</span><span class='line'>bond-master bond0
+</span><span class='line'>
+</span><span class='line'>auto bond0
+</span><span class='line'>iface bond0 inet dhcp
+</span><span class='line'>  slaves eth0 eht1
+</span><span class='line'>  bond_miimon 100
+</span><span class='line'>  bond_downdelay 200
+</span><span class='line'>  bond_updelay 200
+</span><span class='line'>  bond-lacp-rate 4
+</span><span class='line'>  bond-slaves none</span></code></pre></td></tr></table></div></figure>
+
+
+<p>とする。こうすると
+もうほぼ終わったようなもので、
+後何が足りないかって言うとdhcp側の設定だけになってくる。
+ちなみにボンディングインタフェースのMACアドレスは
+bond_primaryを設定しないと最初に書いたものになるっぽい。</p>
+
+<p>今回はこれで終了っ！</p>
 </div>
 
 
@@ -137,12 +216,12 @@
   
 
 
-<time datetime="2014-10-26T02:51:09+09:00" pubdate data-updated="true"></time>
+<time datetime="2014-11-02T20:54:14+09:00" pubdate data-updated="true"></time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/notice/'>notice</a>
+    <a class='category' href='/blog/categories/debian/'>debian</a>, <a class='category' href='/blog/categories/linux/'>linux</a>, <a class='category' href='/blog/categories/network/'>network</a>
   
 </span>
 
@@ -151,7 +230,7 @@
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://eval-scheme.github.io/blog/2014/10/26/success/" data-via="muminn4" data-counturl="http://eval-scheme.github.io/blog/2014/10/26/success/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://eval-scheme.github.io/blog/2014/11/02/debian-bonding/" data-via="muminn4" data-counturl="http://eval-scheme.github.io/blog/2014/11/02/debian-bonding/" >Tweet</a>
   
   
   
@@ -162,10 +241,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/10/26/test/" title="Previous Post: test">&laquo; test</a>
+        <a class="basic-alignment left" href="/blog/2014/11/02/luks-01/" title="Previous Post: RaspberryPiでLUKS暗号化HDDを起動時にマウント">&laquo; RaspberryPiでLUKS暗号化HDDを起動時にマウント</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/11/01/exports/" title="Next Post: ラズパイにNFSを構成する話">ラズパイにNFSを構成する話 &raquo;</a>
       
     </p>
   </footer>
@@ -276,8 +353,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://eval-scheme.github.io/blog/2014/10/26/success/';
-        var disqus_url = 'http://eval-scheme.github.io/blog/2014/10/26/success/';
+        var disqus_identifier = 'http://eval-scheme.github.io/blog/2014/11/02/debian-bonding/';
+        var disqus_url = 'http://eval-scheme.github.io/blog/2014/11/02/debian-bonding/';
         var disqus_script = 'embed.js';
       
     (function () {
