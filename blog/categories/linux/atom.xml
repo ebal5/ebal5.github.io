@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Linux | eval's 2ndary memory]]></title>
+  <link href="http://eval-scheme.github.io/blog/categories/linux/atom.xml" rel="self"/>
+  <link href="http://eval-scheme.github.io/"/>
+  <updated>2014-11-02T20:21:37+09:00</updated>
+  <id>http://eval-scheme.github.io/</id>
+  <author>
+    <name><![CDATA[eval]]></name>
+    <email><![CDATA[eval.scheme@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RaspberryPiでLUKS暗号化HDDを起動時にマウント]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/02/luks-01/"/>
+    <updated>2014-11-02T17:49:04+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/02/luks-01</id>
+    <content type="html"><![CDATA[<h5>Q.一応ファイルサーバを暗号化したいなって</h5>
+
+<h5>A.はいLUKS</h5>
+
+<!-- more -->
+
+
+<h2>LUKS is 何？</h2>
+
+<p>LUKSとはdm-cryptを使用したファイルシステムの暗号化に用いられる
+ソフトウェア。基本的にファイルシステムの暗号化を基本として、
+ループバックデバイスを暗号化する際にも用いられる。</p>
+
+<p>今回はファイルサーバとしたRaspberryPiにLUKSで暗号化したHDD
+をUSBでマウントするお話。</p>
+
+<h2>HDDをフォーマット</h2>
+
+<p>用意したHDDのパーティショニングが済んだらLUKSデバイスとして
+利用できるように操作していく。</p>
+
+<p>とくに難しい設定とかをする気がない簡単な方法で説明していくけど…
+まずはLUKSデバイスとしてフォーマットする。この時にしっかり警告が
+出るけれども、本当にいいかどうかの確認だから正確に答えればOK。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksFormat /dev/hda1&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+そして
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter LUKS passphrase:</span></code></pre></td></tr></table></div></figure>
+となっているところに自分で設定したいパスフレーズを入力する。
+なお、ここで入力したパスフレーズは後から変えることができる。</p>
+
+<p>次に作成したLUKSデバイスを開き、テキトーな場所にまうんとする。
+今回は~/tmpにマウントすることにする。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksOpen /dev/hda1 luks&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+これで/dev/mapper/配下にluksというデバイスファイルができた。
+後はこれを通常のファイルシステムを作成するときと同じように
+形式を選択してフォーマットする。今回はext4。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>mkfs.ext4 /dev/mapper/luks&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>mount /dev/mapper/luks ~/tmp&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+これでマウントまでできているはず。ちなみにLUKSデバイスを
+停止するときはアンマウントした後に
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksClose luks&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+で停止できる。</p>
+
+<p>さて、ここまで出できたのはあくまでファイルシステムと暗号化の
+お話だけでまだOS起動時にマウントなどという事はできていない。</p>
+
+<h2>OS起動時にマウントできるようにする</h2>
+
+<h3>キーファイルの登録</h3>
+
+<p>まずは私はLUKSデバイスのパスはキーファイルでも行けることを利用して
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>dd if=/dev/urandom of=/boot/key-file count=1024 bs=1&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksAddKey /dev/hda1 /boot/key-file&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksDump /dev/hda1&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+までを実行するとキーファイルの生成から追加、その確認が行えるはず！
+一応登録したキーファイルでマウントできることを確認する。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksOpen /dev/hda1 &ndash;key-file /boot/key-file&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+しかし私は考えた。USBメモリにキーファイルを入れて
+持ち歩けばいいのではと。その結果キーファイルをUSBにコピーして
+無事にマウントできることは確認した。さてここからファイルシステムの
+マウントのお話になる。</p>
+
+<h3>OS起動時にマウントさせる</h3>
+
+<p>OS起動時にマウントさせるために絶対に必要なのはデバイスファイル名が
+一定であること。実はUSBで複数のデバイスを接続しているとたまに
+デバイスファイル名が切り替わってしまうことがある。</p>
+
+<p>それを防ぎたいのでudevとか言う存在を使おうと思ったが思い立った。
+「<strong>UUID</strong>でいいじゃないカッ！」と。</p>
+
+<p>UUIDとは各デバイスによって一意に定まるので、OS起動時に
+デバイスファイル名が変わっていようともUUIDは変わらない。</p>
+
+<p>また、/dev/disk/by-uuid にあるファイルは/dev/sd*nなどへの
+シンボリックリンクとなっているのでマウント可能である。</p>
+
+<p>それを利用して/etc/fstabにUSBのマウント先を記述。更に
+/etc/crypttabにLUKSデバイスの設定を書き、最後に/etc/rc.local
+にcryptdisk statとmonutを記述する。これで完成。</p>
+
+<p>この投稿は以上っ！お疲れ様でしたっ！</p>
+]]></content>
+  </entry>
+  
+</feed>
