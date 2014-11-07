@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>ローカルにGitサーバを建てる話 - eval&#8217;s 2ndary memory</title>
+  <meta name="author" content="eval">
+
+  
+  <meta name="description" content="Q.ローカルネットワークにgitサーバが欲しいなっ！ A.はいgitolite Gitとは… 多分この記事を読むような人は知ってるだろうから飛ばそうかとも思うけど
+自分用のメモと言う事を考えると少しくらいは書いておこうかなと。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://eval-scheme.github.io/blog/2014/11/07/localgit">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="eval's 2ndary memory" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href='https://fonts.googleapis.com/css?family=Noto+Serif:400,700' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">eval&#8217;s 2ndary memory</a></h1>
+  
+    <h2>My HDD is fill of garbage</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  
+  
+</ul>
+
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">ローカルにGitサーバを建てる話</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-07T17:33:16+09:00" pubdate data-updated="true"></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://eval-scheme.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h5>Q.ローカルネットワークにgitサーバが欲しいなっ！</h5>
+
+<h5>A.はいgitolite</h5>
+
+<!-- more -->
+
+
+<h2>Gitとは…</h2>
+
+<p>多分この記事を読むような人は知ってるだろうから飛ばそうかとも思うけど
+自分用のメモと言う事を考えると少しくらいは書いておこうかなと。</p>
+
+<p>GitはSVNを置き換えるように作成されている分散型バージョン管理システム
+のことで巨大なプロジェクトにも対応できるように動作速度に
+重点が置かれている。</p>
+
+<p>メインのリポジトリの他にブランチと呼ばれる枝を作成してその上で
+開発をすすめることなど、様々な特徴がある。</p>
+
+<p>詳細は</p>
+
+<ul>
+<li><a href="http://git-scm.com/book/ja/v1/%E4%BD%BF%E3%81%84%E5%A7%8B%E3%82%81%E3%82%8B-Git%E3%81%AE%E5%9F%BA%E6%9C%AC">git general</a> : 使い始める - Gitの基本</li>
+<li><a href="http://ja.wikipedia.org/wiki/Git">wikipedia</a> : Git</li>
+<li><a href="http://www.atmarkit.co.jp/ait/articles/1307/05/news028.html">IT Media</a> : ガチで5分で分かる分散型バージョン管理システムGit</li>
+</ul>
+
+
+<p>などを参考にしてもらいたい。</p>
+
+<h2>GitリポジトリサービスGitHub</h2>
+
+<p>じゃあGitHubではダメなのか？って疑問が当然出てくる。
+GitHubは確かにGitホスティングサービスとしてとても大きいし
+私も登録してたまには使用している。でも…私が書くようなプログラムや
+自分用の設定などを全世界の人に公開するほどの度胸もなければ
+出来ればプライベートに進めたいものもあるのでローカルに作ることに。</p>
+
+<p>またGitリポジトリホスティングサービスはGitHubの他にもいろいろある。
+詳細は
+<a href="http://www.find-job.net/startup/5-git-hosting">Gitホスティングサービス5選</a>
+等で確認してもらいたい。</p>
+
+<h2>本題：Gitolite</h2>
+
+<h3>Gitolite とは？</h3>
+
+<p>公開したくない。ちょっとローカルで共有したいだけ。そんなリポジトリが
+生まれることも多々あると思う。かと言ってGitHubのプライベートリポジトリ
+をお金を払って作る程でもない。そんな時に役立つのがこのGitoliteだ。</p>
+
+<p>サーバにインストールし稼働させることで専用のGitホスティングサーバと
+することができる。</p>
+
+<p>管理するリポジトリやその設定、果てはユーザの管理までもGitリポジトリで行う。
+詳しくは<a href="http://gitolite.com/gitolite/index.html">本家</a>を参照。</p>
+
+<h2>Install</h2>
+
+<h3>構成予定</h3>
+
+<p>まず今回目標とする構成を挙げる。
+Server</p>
+
+<ul>
+<li>OS:Raspbian</li>
+<li>software:gitolite</li>
+<li>その他依存ソフトなど:ssh git &hellip;etc</li>
+<li>gitolite user:git</li>
+</ul>
+
+
+<p>Client</p>
+
+<ul>
+<li>OS:Debian 7 Wheezy</li>
+<li>software:ssh git</li>
+<li>その他依存ソフトなど:&hellip;?</li>
+</ul>
+
+
+<p>ユーザなどは欲しくなるたびに追加するからどうとでも。</p>
+
+<h3>Step1. 管理者用SSH公開鍵の作成、登録</h3>
+
+<h4>SSH公開鍵の作成</h4>
+
+<p>まずは建てたサーバの管理者とするためのユーザを用意しなければ
+いけない。gitoliteではsshの認証はすべてsshの公開鍵認証で
+行われる。そのために管理者用のssh公開鍵を用意する必要がある。</p>
+
+<p>既存のものをそのまま使うならばそれでこの場所は終わりで登録まで進む。</p>
+
+<p>何でもいいのでターミナルを開く。その上で</p>
+
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssy-keygen # fオプションでファイル名を指定できる。くわしくはhelp参照</span></code></pre></td></tr></table></div></figure>
+
+
+<p>で公開鍵と秘密鍵のペアを作成する。その公開鍵を何らかの手段で
+サーバに転送しておく。(おそらくはSFTPやSCPが便利だろう)</p>
+
+<h3>公開鍵の登録</h3>
+
+<p>公開鍵はコンフィグを行う際に登録する。そのためまずは本体のインストールを
+行う。いくつかのOSでは公式リポジトリにバイナリがあるのでaptやaptitude,
+yumなどからインストールできる。</p>
+
+<p>折角用意してくれているのでそれを利用する。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># apt-get install gitolite</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで一発でインストールできてしまうんだから簡単なもんだ。</p>
+
+<p>gitoliteを管理するユーザとして新しいユーザgitを用意した。
+パスワードなどは設定していないのでrootからgitユーザにログインする。
+そしてgitユーザとして以下のコマンドを実行する</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ gl-setup key.pub # key.pubは先程の公開鍵を設定する</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで必要なことはすべてやってくれる。</p>
+
+<p>さてここからはクライアントに戻って作業をすすめる。</p>
+
+<h3>Step2.クライアントサイドでの設定</h3>
+
+<p>さてSSHのコネクションは一回切っても構わない。次に先ほどの管理者用とした
+鍵を利用してgitoliteの管理者として行うべき設定を行う。</p>
+
+<p>まずはローカルに設定用のリポジトリをクローンする。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git@&lt;domain>:gitolite-admin
+</span><span class='line'>$ cd gitolite-admin</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ここにあるkeydirディレクトリに公開鍵を追加することでユーザとして
+gitoliteを使用出来るようになる。
+新しいリポジトリの追加は管理者しか行うことができない。追加の方法は
+confディレクトリ配下の.confファイルを編集する。</p>
+
+<p>リポジトリの名前とアクセス権を書き並べていく事になる。また、このファイルは
+単純な置き換えを使える。うまく使用してらくすることも可能だろう。</p>
+
+<p>置き換えの設定は</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@name = name1 name2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>のように書く。使用するときもただ他の単語のように@をつけたまま置くだけでいい。
+これは単純な置換なのでユーザとリポジトリの違いを考慮できない。</p>
+
+<p>これで分かるようにgitoliteを使用する場合は管理者が新しいリポジトリを
+追加する作業をする必要がある。それだけが少し面倒な点かな…</p>
+
+<p>リポジトリのアクセス権はR,RW,RW+と一切与えないというものがある。
+@allとなっているところはすべてのユーザに許可を与えると言う設定である。</p>
+
+<p>Linuxなどを触っていたらRやRWは分かると思うが一応説明。</p>
+
+<ul>
+<li>R: Read only.</li>
+<li>RW: Read and Write</li>
+<li>RW+: 巻き戻し可能</li>
+<li>-: 拒否</li>
+</ul>
+
+
+<p>となっている。これをリポジトリの設定として書いていく事になる。また
+リポジトリネームやディレクトリ名は正規表現が使用可能となっている。
+必要に応じて使うといいだろう。適応順は上から順に確認されていく。
+そのためあるディレクトリ以外へのRW+を与えたい時には</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- somedire = user
+</span><span class='line'>RW+ = user</span></code></pre></td></tr></table></div></figure>
+
+
+<p>のようにすることになる。</p>
+
+<p>とりあえず、以上で今回の投稿を終わろう。</p>
+
+<p>…ちなみになぜGitサーバが立っているのかは謎。私がこれを建てたときは
+本当はシェルの設定をイジイジしていたはずなのになぜか気がついたら
+Gitサーバを建ててた。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">eval</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-07T17:33:16+09:00" pubdate data-updated="true"></time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/git/'>git</a>, <a class='category' href='/blog/categories/linux/'>linux</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://eval-scheme.github.io/blog/2014/11/07/localgit/" data-via="muminn4" data-counturl="http://eval-scheme.github.io/blog/2014/11/07/localgit/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/11/02/debian-bonding/" title="Previous Post: Debian(系)でBondingしたいな〜って">&laquo; Debian(系)でBondingしたいな〜って</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+  <aside class="sidebar">
+   
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:eval-scheme.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+  
+    <section>
+  <h1>About Me</h1>
+  <p>いーばると名乗る割には技術力が足りない人間。足りないものを
+    名前で補おうとして失敗したいい例。
+  </p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/11/07/localgit/">ローカルにGitサーバを建てる話</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/02/debian-bonding/">Debian(系)でBondingしたいな〜って</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/02/luks-01/">RaspberryPiでLUKS暗号化HDDを起動時にマウント</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/01/raspi-wifi/">RaspberryPiにWiFiを導入(CUI)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/01/exports/">ラズパイにNFSを構成する話</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/eval-scheme">@eval-scheme</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'eval-scheme',
+            count: 3,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+  <h1>Categories</h1>
+    <ul id="category-list"><li><a href='/blog/categories/debian/'>debian (1)</a></li><li><a href='/blog/categories/git/'>git (1)</a></li><li><a href='/blog/categories/linux/'>linux (3)</a></li><li><a href='/blog/categories/network/'>network (2)</a></li><li><a href='/blog/categories/nfs/'>nfs (1)</a></li><li><a href='/blog/categories/notice/'>notice (1)</a></li><li><a href='/blog/categories/raspberrypi/'>raspberrypi (3)</a></li><li><a href='/blog/categories/server/'>server (1)</a></li><li><a href='/blog/categories/test/'>test (1)</a></li><li><a href='/blog/categories/wifi/'>wifi (1)</a></li></ul>
+</section>
+
+  
+</aside>
+
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - eval -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'eval2memory';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://eval-scheme.github.io/blog/2014/11/07/localgit/';
+        var disqus_url = 'http://eval-scheme.github.io/blog/2014/11/07/localgit/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+<script>
+  $(document).ready(function() {  
+  var stickyNavTop = $('nav').offset().top;  
+    
+  var stickyNav = function(){  
+  var scrollTop = $(window).scrollTop();  
+         
+  if (scrollTop > stickyNavTop) {   
+      $('nav').addClass('sticky');  
+  } else {  
+      $('nav').removeClass('sticky');   
+  }  
+  };  
+    
+  stickyNav();  
+    
+  $(window).scroll(function() {  
+      stickyNav();  
+  });  
+  });  
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Git | eval's 2ndary memory]]></title>
+  <link href="http://eval-scheme.github.io/blog/categories/git/atom.xml" rel="self"/>
+  <link href="http://eval-scheme.github.io/"/>
+  <updated>2014-11-07T20:27:36+09:00</updated>
+  <id>http://eval-scheme.github.io/</id>
+  <author>
+    <name><![CDATA[eval]]></name>
+    <email><![CDATA[eval.scheme@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[ローカルにGitサーバを建てる話]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/07/localgit/"/>
+    <updated>2014-11-07T17:33:16+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/07/localgit</id>
+    <content type="html"><![CDATA[<h5>Q.ローカルネットワークにgitサーバが欲しいなっ！</h5>
+
+<h5>A.はいgitolite</h5>
+
+<!-- more -->
+
+
+<h2>Gitとは…</h2>
+
+<p>多分この記事を読むような人は知ってるだろうから飛ばそうかとも思うけど
+自分用のメモと言う事を考えると少しくらいは書いておこうかなと。</p>
+
+<p>GitはSVNを置き換えるように作成されている分散型バージョン管理システム
+のことで巨大なプロジェクトにも対応できるように動作速度に
+重点が置かれている。</p>
+
+<p>メインのリポジトリの他にブランチと呼ばれる枝を作成してその上で
+開発をすすめることなど、様々な特徴がある。</p>
+
+<p>詳細は</p>
+
+<ul>
+<li><a href="http://git-scm.com/book/ja/v1/%E4%BD%BF%E3%81%84%E5%A7%8B%E3%82%81%E3%82%8B-Git%E3%81%AE%E5%9F%BA%E6%9C%AC">git general</a> : 使い始める - Gitの基本</li>
+<li><a href="http://ja.wikipedia.org/wiki/Git">wikipedia</a> : Git</li>
+<li><a href="http://www.atmarkit.co.jp/ait/articles/1307/05/news028.html">IT Media</a> : ガチで5分で分かる分散型バージョン管理システムGit</li>
+</ul>
+
+
+<p>などを参考にしてもらいたい。</p>
+
+<h2>GitリポジトリサービスGitHub</h2>
+
+<p>じゃあGitHubではダメなのか？って疑問が当然出てくる。
+GitHubは確かにGitホスティングサービスとしてとても大きいし
+私も登録してたまには使用している。でも…私が書くようなプログラムや
+自分用の設定などを全世界の人に公開するほどの度胸もなければ
+出来ればプライベートに進めたいものもあるのでローカルに作ることに。</p>
+
+<p>またGitリポジトリホスティングサービスはGitHubの他にもいろいろある。
+詳細は
+<a href="http://www.find-job.net/startup/5-git-hosting">Gitホスティングサービス5選</a>
+等で確認してもらいたい。</p>
+
+<h2>本題：Gitolite</h2>
+
+<h3>Gitolite とは？</h3>
+
+<p>公開したくない。ちょっとローカルで共有したいだけ。そんなリポジトリが
+生まれることも多々あると思う。かと言ってGitHubのプライベートリポジトリ
+をお金を払って作る程でもない。そんな時に役立つのがこのGitoliteだ。</p>
+
+<p>サーバにインストールし稼働させることで専用のGitホスティングサーバと
+することができる。</p>
+
+<p>管理するリポジトリやその設定、果てはユーザの管理までもGitリポジトリで行う。
+詳しくは<a href="http://gitolite.com/gitolite/index.html">本家</a>を参照。</p>
+
+<h2>Install</h2>
+
+<h3>構成予定</h3>
+
+<p>まず今回目標とする構成を挙げる。
+Server</p>
+
+<ul>
+<li>OS:Raspbian</li>
+<li>software:gitolite</li>
+<li>その他依存ソフトなど:ssh git &hellip;etc</li>
+<li>gitolite user:git</li>
+</ul>
+
+
+<p>Client</p>
+
+<ul>
+<li>OS:Debian 7 Wheezy</li>
+<li>software:ssh git</li>
+<li>その他依存ソフトなど:&hellip;?</li>
+</ul>
+
+
+<p>ユーザなどは欲しくなるたびに追加するからどうとでも。</p>
+
+<h3>Step1. 管理者用SSH公開鍵の作成、登録</h3>
+
+<h4>SSH公開鍵の作成</h4>
+
+<p>まずは建てたサーバの管理者とするためのユーザを用意しなければ
+いけない。gitoliteではsshの認証はすべてsshの公開鍵認証で
+行われる。そのために管理者用のssh公開鍵を用意する必要がある。</p>
+
+<p>既存のものをそのまま使うならばそれでこの場所は終わりで登録まで進む。</p>
+
+<p>何でもいいのでターミナルを開く。その上で
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ssy-keygen # fオプションでファイル名を指定できる。くわしくはhelp参照</span></code></pre></td></tr></table></div></figure>
+で公開鍵と秘密鍵のペアを作成する。その公開鍵を何らかの手段で
+サーバに転送しておく。(おそらくはSFTPやSCPが便利だろう)</p>
+
+<h3>公開鍵の登録</h3>
+
+<p>公開鍵はコンフィグを行う際に登録する。そのためまずは本体のインストールを
+行う。いくつかのOSでは公式リポジトリにバイナリがあるのでaptやaptitude,
+yumなどからインストールできる。</p>
+
+<p>折角用意してくれているのでそれを利用する。
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>apt-get install gitolite&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+これで一発でインストールできてしまうんだから簡単なもんだ。</p>
+
+<p>gitoliteを管理するユーザとして新しいユーザgitを用意した。
+パスワードなどは設定していないのでrootからgitユーザにログインする。
+そしてgitユーザとして以下のコマンドを実行する
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ gl-setup key.pub # key.pubは先程の公開鍵を設定する</span></code></pre></td></tr></table></div></figure>
+これで必要なことはすべてやってくれる。</p>
+
+<p>さてここからはクライアントに戻って作業をすすめる。</p>
+
+<h3>Step2.クライアントサイドでの設定</h3>
+
+<p>さてSSHのコネクションは一回切っても構わない。次に先ほどの管理者用とした
+鍵を利用してgitoliteの管理者として行うべき設定を行う。</p>
+
+<p>まずはローカルに設定用のリポジトリをクローンする。
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone git@&lt;domain>:gitolite-admin
+</span><span class='line'>$ cd gitolite-admin</span></code></pre></td></tr></table></div></figure>
+ここにあるkeydirディレクトリに公開鍵を追加することでユーザとして
+gitoliteを使用出来るようになる。
+新しいリポジトリの追加は管理者しか行うことができない。追加の方法は
+confディレクトリ配下の.confファイルを編集する。</p>
+
+<p>リポジトリの名前とアクセス権を書き並べていく事になる。また、このファイルは
+単純な置き換えを使える。うまく使用してらくすることも可能だろう。</p>
+
+<p>置き換えの設定は
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@name = name1 name2</span></code></pre></td></tr></table></div></figure>
+のように書く。使用するときもただ他の単語のように@をつけたまま置くだけでいい。
+これは単純な置換なのでユーザとリポジトリの違いを考慮できない。</p>
+
+<p>これで分かるようにgitoliteを使用する場合は管理者が新しいリポジトリを
+追加する作業をする必要がある。それだけが少し面倒な点かな…</p>
+
+<p>リポジトリのアクセス権はR,RW,RW+と一切与えないというものがある。
+@allとなっているところはすべてのユーザに許可を与えると言う設定である。</p>
+
+<p>Linuxなどを触っていたらRやRWは分かると思うが一応説明。</p>
+
+<ul>
+<li>R: Read only.</li>
+<li>RW: Read and Write</li>
+<li>RW+: 巻き戻し可能</li>
+<li>-: 拒否</li>
+</ul>
+
+
+<p>となっている。これをリポジトリの設定として書いていく事になる。また
+リポジトリネームやディレクトリ名は正規表現が使用可能となっている。
+必要に応じて使うといいだろう。適応順は上から順に確認されていく。
+そのためあるディレクトリ以外へのRW+を与えたい時には
+<code>
+- somedire = user
+RW+ = user
+</code>
+のようにすることになる。</p>
+
+<p>とりあえず、以上で今回の投稿を終わろう。</p>
+
+<p>…ちなみになぜGitサーバが立っているのかは謎。私がこれを建てたときは
+本当はシェルの設定をイジイジしていたはずなのになぜか気がついたら
+Gitサーバを建ててた。</p>
+]]></content>
+  </entry>
+  
+</feed>
