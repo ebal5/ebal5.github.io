@@ -4,7 +4,7 @@
   <title><![CDATA[eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2014-11-07T22:04:29+09:00</updated>
+  <updated>2015-03-10T17:54:22+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -12,6 +12,113 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Nesus7]]></title>
+    <link href="http://eval-scheme.github.io/blog/2015/03/10/nesus7/"/>
+    <updated>2015-03-10T08:17:38+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2015/03/10/nesus7</id>
+    <content type="html"><![CDATA[<h5>Q.Nexus7が錘に近いものになったっ！</h5>
+
+<h5>A.おとなしくファクトリーイメージを焼け!!</h5>
+
+<!-- more -->
+
+
+<h2>状態</h2>
+
+<p>私みたいなアホはそういないと思いますが、Nexus7を買って嬉しくなって
+root化しようとしました。</p>
+
+<p>しかし私は知りません。その時すでにOSがlolipop(5.0.2)まで
+アップデートされていたことを… 結果としてroot化にはもちろん失敗
+(4系の方法でやってしまった)。状態として、fastbootモードは起動するけど……
+ってことになった。</p>
+
+<p>諦めず調べてみた結果…
+<a href="https://developers.google.com/android/nexus/images" title="Google">公式</a> に
+修復の仕方が載ってるではないか!!</p>
+
+<p>まあ、本来はただただファクトリーイメージを書き込むだけで、ADBがつながることが
+前提らしいが…</p>
+
+<p>幸い、弄るためにPCにあるVMの一つがUSBデバッグのパーミッションを受け取っていたので
+そこからイジイジすることになった。</p>
+
+<h2>上手な焼き方</h2>
+
+<p>上手も何も公式どおりに…いけばいいね。
+そんな訳がなく、紆余曲折があった…</p>
+
+<h3>失敗: 公式どおりにやったこと</h3>
+
+<p>公式に書いてあるとおりにやるとうまくいかなかった。
+何が原因かはよくわからん。</p>
+
+<p>その時の手順…</p>
+
+<p>事前準備：AndroidSDKのインストール等でADBやfastbootコマンドを
+使えるようにしておくこと。(debian系だとnexus-toolsをaptから拾うのが速い？)</p>
+
+<ol>
+<li><a href="https://developers.google.com/android/nexus/images" title="Google">公式</a>から使ってるデバイスにあったイメージを持ってくる</li>
+<li>↑のイメージ(.tgzファイル)を適当なディレクトリで展開する</li>
+<li>デバイスをfastbootモードで起動(デバイスごとに異なる)しUSBで接続する</li>
+<li>もしブートローダーがアンロックされていないなら</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>fastboot oem unlock</span></code></pre></td></tr></table></div></figure>
+
+
+<p>でアンロックすること。ここからはコマンドラインの操作。</p>
+
+<ol>
+<li>端末から展開されたディレクトリに入る</li>
+<li><p>flash-allスクリプトを実行する</p></li>
+<li><p>ブートローダーをロックし直す(必須ではない)</p></li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>fastboot oem lock</span></code></pre></td></tr></table></div></figure>
+
+
+<p>公式はこうだっていうんだけど、このとおりにやったらむしろうまくいかなかった。</p>
+
+<p>そういう時はおとなしく途中の処理を分解してワンステップずつやってやることになる。</p>
+
+<h3>実際に成功した例</h3>
+
+<p>上記の通り公式の方法ではうまくいかなかったので
+<a href="http://juggly.cn/archives/133821.html" title="juggly.cn">Nexusデバイスをファクトリーイメージを利用してAndroid 5.0（Lollipop）に手動アップデートする方法</a>
+の方法を利用した。（むしろまんま）</p>
+
+<p>アンロックする、展開するまでは同じで端末から展開されたディレクトリに入るのも同じ。
+違うのはそこからで</p>
+
+<ol>
+<li>展開結果で現れたzipファイルを更に展開する</li>
+<li>ブートローダーから手動で以下のコマンドを実行</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>fastboot flash system system.img
+</span><span class='line'>fastboot flash recovery recovery.img
+</span><span class='line'>fastboot flash boot boot.img
+</span><span class='line'>fastboot reboot</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上でうまく往く…気がする！基本的に文鎮化てきな状態になるような
+操作はしないのが望ましいけど、たまに遊びたくなっちゃうことも有るよね？
+って話。それでは今日はここまで。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ローカルにGitサーバを建てる話]]></title>

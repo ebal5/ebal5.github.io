@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Raspberrypi | eval's 2ndary memory]]></title>
+  <link href="http://eval-scheme.github.io/blog/categories/raspberrypi/atom.xml" rel="self"/>
+  <link href="http://eval-scheme.github.io/"/>
+  <updated>2015-03-10T17:54:22+09:00</updated>
+  <id>http://eval-scheme.github.io/</id>
+  <author>
+    <name><![CDATA[eval]]></name>
+    <email><![CDATA[eval.scheme@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[RaspberryPiでLUKS暗号化HDDを起動時にマウント]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/02/luks-01/"/>
+    <updated>2014-11-02T17:49:04+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/02/luks-01</id>
+    <content type="html"><![CDATA[<h5>Q.一応ファイルサーバを暗号化したいなって</h5>
+
+<h5>A.はいLUKS</h5>
+
+<!-- more -->
+
+
+<h2>LUKS is 何？</h2>
+
+<p>LUKSとはdm-cryptを使用したファイルシステムの暗号化に用いられる
+ソフトウェア。基本的にファイルシステムの暗号化を基本として、
+ループバックデバイスを暗号化する際にも用いられる。</p>
+
+<p>今回はファイルサーバとしたRaspberryPiにLUKSで暗号化したHDD
+をUSBでマウントするお話。</p>
+
+<h2>HDDをフォーマット</h2>
+
+<p>用意したHDDのパーティショニングが済んだらLUKSデバイスとして
+利用できるように操作していく。</p>
+
+<p>とくに難しい設定とかをする気がない簡単な方法で説明していくけど…
+まずはLUKSデバイスとしてフォーマットする。この時にしっかり警告が
+出るけれども、本当にいいかどうかの確認だから正確に答えればOK。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksFormat /dev/hda1&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+そして
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Enter LUKS passphrase:</span></code></pre></td></tr></table></div></figure>
+となっているところに自分で設定したいパスフレーズを入力する。
+なお、ここで入力したパスフレーズは後から変えることができる。</p>
+
+<p>次に作成したLUKSデバイスを開き、テキトーな場所にまうんとする。
+今回は~/tmpにマウントすることにする。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksOpen /dev/hda1 luks&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+これで/dev/mapper/配下にluksというデバイスファイルができた。
+後はこれを通常のファイルシステムを作成するときと同じように
+形式を選択してフォーマットする。今回はext4。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>mkfs.ext4 /dev/mapper/luks&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>mount /dev/mapper/luks ~/tmp&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+これでマウントまでできているはず。ちなみにLUKSデバイスを
+停止するときはアンマウントした後に
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksClose luks&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+で停止できる。</p>
+
+<p>さて、ここまで出できたのはあくまでファイルシステムと暗号化の
+お話だけでまだOS起動時にマウントなどという事はできていない。</p>
+
+<h2>OS起動時にマウントできるようにする</h2>
+
+<h3>キーファイルの登録</h3>
+
+<p>まずは私はLUKSデバイスのパスはキーファイルでも行けることを利用して
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>dd if=/dev/urandom of=/boot/key-file count=1024 bs=1&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksAddKey /dev/hda1 /boot/key-file&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksDump /dev/hda1&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+までを実行するとキーファイルの生成から追加、その確認が行えるはず！
+一応登録したキーファイルでマウントできることを確認する。
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>cryptsetup luksOpen /dev/hda1 &ndash;key-file /boot/key-file&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+しかし私は考えた。USBメモリにキーファイルを入れて
+持ち歩けばいいのではと。その結果キーファイルをUSBにコピーして
+無事にマウントできることは確認した。さてここからファイルシステムの
+マウントのお話になる。</p>
+
+<h3>OS起動時にマウントさせる</h3>
+
+<p>OS起動時にマウントさせるために絶対に必要なのはデバイスファイル名が
+一定であること。実はUSBで複数のデバイスを接続しているとたまに
+デバイスファイル名が切り替わってしまうことがある。</p>
+
+<p>それを防ぎたいのでudevとか言う存在を使おうと思ったが思い立った。
+「<strong>UUID</strong>でいいじゃないカッ！」と。</p>
+
+<p>UUIDとは各デバイスによって一意に定まるので、OS起動時に
+デバイスファイル名が変わっていようともUUIDは変わらない。</p>
+
+<p>また、/dev/disk/by-uuid にあるファイルは/dev/sd*nなどへの
+シンボリックリンクとなっているのでマウント可能である。</p>
+
+<p>それを利用して/etc/fstabにUSBのマウント先を記述。更に
+/etc/crypttabにLUKSデバイスの設定を書き、最後に/etc/rc.local
+にcryptdisk statとmonutを記述する。これで完成。</p>
+
+<p>この投稿は以上っ！お疲れ様でしたっ！</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[RaspberryPiにWiFiを導入(CUI)]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/01/raspi-wifi/"/>
+    <updated>2014-11-01T23:11:59+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/01/raspi-wifi</id>
+    <content type="html"><![CDATA[<p>実は前回の話をするときの前にやってたことなんだけど…</p>
+
+<!-- more -->
+
+
+<p>今サーバとして使われているラズパイが２つあって、内一つは
+普段からLANケーブルが２本刺さってる状態にあって、それぞれに
+IPアドレスがふられていた。</p>
+
+<p>それを何とかしようと思った私は「そうだ、Bondingしよっ！」と
+思い立ったわけだけど、サーバ用だからディスプレイもないし
+そもそもキーボードとかも用意していない。果ては部屋の隅に
+埋まっている状況で、かろうじてUSBポートに手が出せる感じたった。</p>
+
+<p>そこで私は余っていたWiFiドングルを取り出しておもむろに接続し…</p>
+
+<h2>Installs</h2>
+
+<p>まずはお決まりのインストールから。私が使ったパッケージは
+<strong>wpa_supplicant</strong>だけ新しくインストール。</p>
+
+<p>これも例のごとくaptで取得できる。</p>
+
+<h2>無線LANの設定</h2>
+
+<p>ドングルを接続し、
+<code>sh
+$ dmesg
+</code>
+によってカーネルメッセージなどを確認することによって
+USBデバイスがきちんと認識されていることを確認した後、
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>nano /etc/cat /etc/network/interfaces&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure>
+で編集することになる。編集内容は
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>auto wlan0
+</span><span class='line'>iface wlan0 inet dhcp
+</span><span class='line'>wpa-conf /etc/wpa_supplicatn/wpa_supplicant.conf</span></code></pre></td></tr></table></div></figure>
+という記述を追加する。
+その後に、楽な方法を取ろうかと思ってやったのが
+<a href="" title="http://hukuroufc2.blog.fc2.com/blog-entry-32.html">Not Found Parameter</a>
+に載っていた方法。先ほどインストールしたソフトはそのため。</p>
+
+<p>何をするのかというと…
+<figure class='code'><figcaption><span>sh </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;/p>
+</span><span class='line'>
+</span><span class='line'>&lt;h1>wpa_passphrase SSID Passphrase > /etc/wpa_supplicatn/wpa_supplicant.conf&lt;/h1>
+</span><span class='line'>
+</span><span class='line'>&lt;p></span></code></pre></td></tr></table></div></figure></p>
+
+<p>としてやると、既存の設定は消え去るがとても楽に話が済む。もちろんSSIDと
+Passphraseは自分の環境に合わせて変えなければならないけれども。</p>
+
+<p>こうして書き込んだファイルを開き更に数行追加する。
+<code>
+key_mgmt=WPA-PSK
+proto=WPA WPA2
+pairwise=CCMP TKIP
+group=CCMP TKIP
+</code>
+という行を先ほどのファイルの中括弧内に追加する。</p>
+
+<p>それからさきはもう一旦wlan0を落としてからもう一度起動する。
+これでうまく言ってたらおめでとう！</p>
+
+<p>なお、DHCPにアクセスする前提で記述してるが、そうでない場合は
+<code>
+iface wlan0 inet static
+</code></p>
+
+<p>と書くなどしてそれぞれの設定を書かないといけない。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ラズパイにNFSを構成する話]]></title>
+    <link href="http://eval-scheme.github.io/blog/2014/11/01/exports/"/>
+    <updated>2014-11-01T18:04:15+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2014/11/01/exports</id>
+    <content type="html"><![CDATA[<p>Q.RaspberryPiにNFSサーバを構築したいんだっ！</p>
+
+<p>A.はい/etc/exports</p>
+
+<!-- more -->
+
+
+<p>当たり前の話ですけれでもサーバなんて建てればいいってわけじゃなくて
+いれた後にいろんな設定をしたりそもそもいろんな設定をしなければだったり
+するわけで…</p>
+
+<p>まあ、久しぶりにやったら忘れるよね。そんなわけで忘れ難くならないかな〜
+とか期待しつつ備忘録第一号として書いてみる。</p>
+
+<h2>Install</h2>
+
+<p>本当はこれ自体はだいぶ前から入れてあったけどついでにまとめ直してみる。</p>
+
+<h3>NFSサーバのインストール</h3>
+
+<p>一番簡単なのはaptコマンドを使って入れちゃうこと。OS標準のままで
+インストールできるからルート権限持ってるなら簡単。(まあ、ラズパイ
+使っててルート権限ないとか言う事態を考えたくないし…)
+&#8220;`</p>
+
+<h1>apt-get install nfs-common nfs-kernel-server</h1>
+
+<pre><code>これだけ。あとはOS起動時に走るようにしなきゃだけど…
+aptで入れるとたいていは自動的に設定される。そうでなかったら
+</code></pre>
+
+<h1>chkconfig nfs-common on</h1>
+
+<h1>chkconfig nfs-kernel-server on</h1>
+
+<pre><code>とでもしてあげるとちゃんと動く。ちなみにchkconfigコマンドは
+標準じゃないっぽいから使うときには入れなくてはいけない。
+(多分こんなコマンドだから直接弄るファイルがあるんだろうけど)
+
+
+## /etc/exportsの設定 ##
+最初に言ったようにここの設定をいじくってあげないとNFSは
+何もお話しません。こいつをどう設定するかって言うと…
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>srv-dirs hostname1(options) hostname2(options)</span></code></pre></td></tr></table></div></figure>
+というふうに書くことになる。詳しいことはいろいろ調べれば出てくると
+思うけど…例えば
+
+[turbolinux](&#8220;http://www.turbolinux.com/support/document/knowledge/555.html&#8221;)
+
+みたいなところでお話してくれる。私の設定は公開しないほうがいいようななぞ
+設定になってると思うから…
+
+## マウントする ##
+実際に他のマシンからマウントする前にまず自分のマシンからマウント
+してみたほうがいいかもしれません。
+</code></pre>
+
+<h1>mount -t nfs localhost:/srv/dir-name mount-point</h1>
+
+<p>&#8220;`
+これでなんにもエラーが出なければおめでとうございます。
+普通に設定で許可されているマシンからマウントできることでしょう！</p>
+
+<p>私はここに共用のデータなどを入れています。まだこの設定のまま
+お外につなげるのは怖くて…</p>
+
+<p>とりあえずこのポストはこれくらいで終了とします。
+読んでいただきありがとうございます。</p>
+]]></content>
+  </entry>
+  
+</feed>
