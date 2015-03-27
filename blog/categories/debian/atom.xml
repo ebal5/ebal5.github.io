@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Debian | eval's 2ndary memory]]></title>
   <link href="http://eval-scheme.github.io/blog/categories/debian/atom.xml" rel="self"/>
   <link href="http://eval-scheme.github.io/"/>
-  <updated>2015-03-10T17:54:22+09:00</updated>
+  <updated>2015-03-28T08:38:31+09:00</updated>
   <id>http://eval-scheme.github.io/</id>
   <author>
     <name><![CDATA[eval]]></name>
@@ -12,6 +12,53 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Debian7 & Laptopで画面を閉じるとサスペンドする…]]></title>
+    <link href="http://eval-scheme.github.io/blog/2015/03/28/gnome-power/"/>
+    <updated>2015-03-28T08:19:34+09:00</updated>
+    <id>http://eval-scheme.github.io/blog/2015/03/28/gnome-power</id>
+    <content type="html"><![CDATA[<h5>Q. Debian7のノートPCで画面を閉じるとサスペンドするよ〜</h5>
+
+<h5>A. おとなしく設定をコマンドラインでいじりなさい</h5>
+
+<!-- more -->
+
+
+<h2>何が問題なのか？</h2>
+
+<p>正直に言って、現状私は普段使いのデスクトップ環境として
+Xfceを使っている。特に理由は無いが、強いて言うならば軽いというのが大きい。</p>
+
+<p>もちろん実測したわけでも無いのであくまで体感的なものであるわけだが……</p>
+
+<p>Debianは標準のデスクトップ環境がGnome3なわけだから、
+それを使おうと思うことも無いわけではない。</p>
+
+<p>しかしそこで問題が発生する。Xfceでやっていたように画面を閉じて
+画面の電源だけを消して作業を続けてもらおうとすると……サスペンドしやがる。</p>
+
+<p>余計なお世話というか何というか、勝手にサスペンドしてくれる仕様のようだ。
+でも私は画面を閉じる動作にサスペンドを望んでいないっ!!</p>
+
+<p>そこで設定をいじろうと設定を開いて探すが……画面を閉じた時の動作が存在しない。
+どうしてだ〜と考えていると、コマンドラインで編集できるのではと言う考えに
+至った。そこで調べてみるとヒットするではないか。ここは自分用のメモだし、
+ほとんどまんまを書くことをゆるしてほすぃな〜とか。</p>
+
+<p><a href="http://d.hatena.ne.jp/naokibtn/20130602/1370193887" title="naokibtnの日記">GNOME3(Debian7)ノート 環境で、フタ閉じてもサスペンドしない</a></p>
+
+<p>真面目に描くとよくわからなくなるので最初に解決する方法をかく。</p>
+
+<pre><code>$ gsettings set org.gnome.settings-daemon.plugins.power lid-close-ac-action 'blank'
+#AC接続時
+$ gsettings set org.gnome.settings-daemon.plubins.power lid-close-battery-action 'blank'
+#Battery起動時
+</code></pre>
+
+<p>この2つをお好みに合わせて書けば解決する。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Debian(系)でBondingしたいな〜って]]></title>
